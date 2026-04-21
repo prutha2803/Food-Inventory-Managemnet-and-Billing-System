@@ -1,0 +1,163 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block title %}Your Bill{% endblock %}
+
+{% block content %}
+
+<style>
+section .receipt {
+    font-size: 12px;
+    font-family: 'courier';
+}
+
+.container-ticket {
+    background: #e6e6e6;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+.ticket {
+    width: 300px;
+    background: #fff;
+    padding: 15px;
+    box-shadow: 0px 5px 10px rgba(0,0,0,.1);
+}
+
+.bold { font-weight: bold; }
+.x-bold { font-weight: 900; }
+
+.hr {
+    border-bottom: 1.5px dashed #333;
+    margin: 10px 0;
+}
+
+.col2 {
+    display: flex;
+    justify-content: space-between;
+}
+
+.center {
+    text-align: center;
+}
+
+/* Barcode style */
+.code-barre {
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.code-barre span {
+    height: 100%;
+    display: inline-block;
+    background: #000;
+}
+
+/* Random barcode widths */
+.code-barre span:nth-child(odd) { width: 3px; }
+.code-barre span:nth-child(even) { width: 6px; }
+</style>
+
+<div class="text-center py-3">
+    <button class="btn btn-success btn-sm" onclick="printInvoice()">
+         Print Bill
+    </button>
+</div>
+
+<!-- IMPORTANT: wrapper added -->
+<div class="invoice-receipt">
+
+<section class="receipt container-ticket">
+    <div class="ticket">
+
+        <!-- HEADER -->
+        <div class="center">
+            <p class="x-bold">FOOD INVENTORY MANAGEMENT</p>
+            <p class="bold">AND BILLING SYSTEM</p>
+            <p class="bold">YOUR BILL</p>
+            <br>
+            <p>Date: {{ sale.date_added|date:"Y/m/d H:i" }}</p>
+            <p>Receipt ID: BILL{{ sale.id }}</p>
+        </div>
+
+        <!-- Barcode -->
+        <div class="code-barre">
+            {% for i in "1234567890123456789012345678901234567890" %}
+                <span></span>
+            {% endfor %}
+        </div>
+
+        <div class="hr"></div>
+
+        <!-- CUSTOMER -->
+        <div class="col2">
+            <p>Customer</p>
+            <p><b>{{ sale.customer.first_name }}</b></p>
+        </div>
+
+        <div class="hr"></div>
+
+        <!-- BILL DETAILS -->
+        <div class="col2">
+            <p>Subtotal</p>
+            <p><b>₹ {{ sale.sub_total }}</b></p>
+        </div>
+
+        <div class="col2">
+            <p>Tax</p>
+            <p><b>₹ {{ sale.tax_amount }}</b></p>
+        </div>
+
+        <div class="col2">
+            <p>Total</p>
+            <p><b>₹ {{ sale.grand_total }}</b></p>
+        </div>
+
+        <div class="col2">
+            <p>Paid</p>
+            <p><b>₹ {{ sale.amount_paid }}</b></p>
+        </div>
+
+        <div class="col2">
+            <p>Balance</p>
+            <p><b>₹ {{ sale.amount_change }}</b></p>
+        </div>
+
+        <div class="hr"></div>
+
+        <!-- FOOTER -->
+        <div class="center">
+            <p class="bold">THANK YOU!</p>
+        </div>
+
+    </div>
+</section>
+
+</div>
+
+<script>
+function printInvoice() {
+    var content = document.querySelector(".invoice-receipt").innerHTML;
+
+    var printWindow = window.open('', '', 'height=600,width=800');
+
+    printWindow.document.write('<html><head><title>Your Bill</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body{font-family:courier;padding:20px;}');
+    printWindow.document.write('.ticket{width:300px;margin:auto;}');
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(content);
+    printWindow.document.write('</body></html>');
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+</script>
+
+{% endblock %}
